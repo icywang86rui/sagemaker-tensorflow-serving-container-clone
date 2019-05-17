@@ -34,6 +34,7 @@ phases:
 
       # run local cpu integ tests
       - tag="$FRAMEWORK_VERSION-cpu-py3"
+      - $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
       - pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name sagemaker-tensorflow-scriptmode --tag $tag --py-version 3 --framework-version $FRAMEWORK_VERSION --processor cpu
 
       # Publish all images
