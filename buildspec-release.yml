@@ -58,7 +58,7 @@ phases:
           }],
           "test": [
             "pytest test/integration/sagemaker -n 8 --region {region} --account-id 520713654638 --docker-base-name sagemaker-tensorflow-scriptmode --framework-version 1.13.1 --processor cpu",
-            "pytest test/integration/sagemaker -n 8 --region {region} --account-id 520713654638 --docker-base-name sagemaker-tensorflow-scriptmode --framework-version 1.13.1 --processor gpu",
+            "pytest test/integration/sagemaker -n 8 --region {region} --account-id 520713654638 --docker-base-name sagemaker-tensorflow-scriptmode --framework-version 1.13.1 --processor gpu"
           ]
         }]' > deployments.json
 
