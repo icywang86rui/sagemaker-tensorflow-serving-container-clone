@@ -77,12 +77,7 @@ phases:
       # - launch-ec2-instance --instance-type $instance_type --ami-name dlami-ubuntu
 
       # run cpu integration tests
-      - |
-        if has-matching-changes "test/" "tests/" "src/*.py" "docker/*" "buildspec.yml"; then
-          pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --tag $CPU_TAG --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY_VERSION --processor cpu
-        else
-          echo "skipping cpu integration tests"
-        fi
+      - pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --tag $CPU_TAG --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY_VERSION --processor cpu
 
       # run gpu integration tests
       #- |
