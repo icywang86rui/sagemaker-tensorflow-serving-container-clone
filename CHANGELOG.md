@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2 (2019-05-17)
+
+### Bug fixes and other changes
+
+ * Remove extra comma
+
 ## v0.1.1 (2019-05-17)
 
 ### Bug fixes and other changes
