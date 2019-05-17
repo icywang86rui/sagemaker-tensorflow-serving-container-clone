@@ -38,8 +38,9 @@ phases:
       # Publish all images
       - python3 scripts/publish_all.py --account $ACCOUNT
 
-      - echo '[{
-          "repository": "sagemaker-tensorflow-serving",
+      - |
+        echo '[{
+          "repository": "sagemaker-tensorflow-scriptmode",
           "tags": [{
             "source": "1.13.1-cpu-py2",
             "dest": ["1.13.1-cpu-py2", "1.13-cpu-py2", "1.13.1-cpu-py2-'${CODEBUILD_BUILD_ID#*:}'"]
