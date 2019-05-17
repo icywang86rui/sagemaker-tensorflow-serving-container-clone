@@ -33,7 +33,8 @@ phases:
       - python3 scripts/build_all.py
 
       # run local cpu integ tests
-      - tox -e py36 -- test/integration/local --docker-base-name sagemaker-tensorflow-scriptmode --framework-version $FRAMEWORK_VERSION --processor cpu
+      - tag="$FRAMEWORK_VERSION-cpu-py3"
+      - pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name sagemaker-tensorflow-scriptmode --tag $tag --py-version 3 --framework-version $FRAMEWORK_VERSION --processor cpu
 
       # Publish all images
       - python3 scripts/publish_all.py --account $ACCOUNT
