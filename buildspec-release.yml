@@ -18,27 +18,27 @@ phases:
       # run linter
       - tox -e flake8
 
-      # run unit tests
-      - pip3 install -U -e .
-      - pip3 install -U -e .[test]
-      - pytest test/unit
+      ## run unit tests
+      #- pip3 install -U -e .
+      #- pip3 install -U -e .[test]
+      #- pytest test/unit
 
-      # Create pip archive
-      - build_dir="docker/$FRAMEWORK_VERSION"
-      - python3 setup.py sdist
-      - tar_name=$(ls dist)
-      - cp dist/$tar_name $build_dir
+      ## Create pip archive
+      #- build_dir="docker/$FRAMEWORK_VERSION"
+      #- python3 setup.py sdist
+      #- tar_name=$(ls dist)
+      #- cp dist/$tar_name $build_dir
 
-      # Build all images
-      - python3 scripts/build_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
+      ## Build all images
+      #- python3 scripts/build_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
 
-      # run local cpu integ tests
-      - tag="$FRAMEWORK_VERSION-cpu-py3"
-      - $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
-      - pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name sagemaker-tensorflow-scriptmode --tag $tag --py-version 3 --framework-version $FRAMEWORK_VERSION --processor cpu
+      ## run local cpu integ tests
+      #- tag="$FRAMEWORK_VERSION-cpu-py3"
+      #- $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
+      #- pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name sagemaker-tensorflow-scriptmode --tag $tag --py-version 3 --framework-version $FRAMEWORK_VERSION --processor cpu
 
-      # Publish all images
-      - python3 scripts/publish_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
+      ## Publish all images
+      #- python3 scripts/publish_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
 
       - |
         echo '[{
