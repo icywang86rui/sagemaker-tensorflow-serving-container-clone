@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.1 (2019-05-17)
+
+### Bug fixes and other changes
+
+ * skip all testing
+ * Fix deployment.json
+
 ## v0.1.0 (2019-05-17)
 
 ### Bug fixes and other changes
@@ -122,4 +129,3 @@
  * Creating initial file from template
  * Creating initial file from template
  * Initial commit
-
