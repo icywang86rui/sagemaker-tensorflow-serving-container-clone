@@ -71,10 +71,10 @@ phases:
       - docker push $PREPROD_IMAGE:$GPU_TAG
 
       # launch remote gpu instance
-      - prefix='ml.'
-      - instance_type=${GPU_INSTANCE_TYPE#"$prefix"}
-      - create-key-pair
-      - launch-ec2-instance --instance-type $instance_type --ami-name dlami-ubuntu
+      # - prefix='ml.'
+      # - instance_type=${GPU_INSTANCE_TYPE#"$prefix"}
+      # - create-key-pair
+      # - launch-ec2-instance --instance-type $instance_type --ami-name dlami-ubuntu
 
       # run cpu integration tests
       - |
@@ -85,35 +85,35 @@ phases:
         fi
 
       # run gpu integration tests
-      - |
-        if has-matching-changes "test/" "tests/" "src/*.py" "docker/*" "buildspec.yml"; then
-          printf "$SETUP_CMDS" > $SETUP_FILE
-          cmd="pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --tag $GPU_TAG --framework-version $FRAMEWORK_VERSION --py-version $GPU_PY_VERSION --processor gpu"
-          remote-test --github-repo $GITHUB_REPO --test-cmd "$cmd" --setup-file $SETUP_FILE --pr-number "$PR_NUM"
-        else
-          echo "skipping gpu integration tests"
-        fi
+      #- |
+      #  if has-matching-changes "test/" "tests/" "src/*.py" "docker/*" "buildspec.yml"; then
+      #    printf "$SETUP_CMDS" > $SETUP_FILE
+      #    cmd="pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --tag $GPU_TAG --framework-version $FRAMEWORK_VERSION --py-version $GPU_PY_VERSION --processor gpu"
+      #    remote-test --github-repo $GITHUB_REPO --test-cmd "$cmd" --setup-file $SETUP_FILE --pr-number "$PR_NUM"
+      #  else
+      #    echo "skipping gpu integration tests"
+      #  fi
 
-      # run cpu sagemaker tests
-      - |
-        if has-matching-changes "test/" "tests/" "src/*.py" "docker/*" "buildspec.yml"; then
-          pytest test/integration/sagemaker -n 8 --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --account-id $ACCOUNT --tag $CPU_TAG --py-version $CPU_PY_VERSION --instance-type $CPU_INSTANCE_TYPE
-        else
-          echo "skipping cpu sagemaker tests"
-        fi
+      ## run cpu sagemaker tests
+      #- |
+      #  if has-matching-changes "test/" "tests/" "src/*.py" "docker/*" "buildspec.yml"; then
+      #    pytest test/integration/sagemaker -n 8 --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --account-id $ACCOUNT --tag $CPU_TAG --py-version $CPU_PY_VERSION --instance-type $CPU_INSTANCE_TYPE
+      #  else
+      #    echo "skipping cpu sagemaker tests"
+      #  fi
 
-      # run gpu sagemaker tests
-      - |
-        if has-matching-changes "test/" "tests/" "src/*.py" "docker/*" "buildspec.yml"; then
-          pytest test/integration/sagemaker -n 8 --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --account-id $ACCOUNT --tag $GPU_TAG --py-version $GPU_PY_VERSION --instance-type $GPU_INSTANCE_TYPE
-        else
-          echo "skipping gpu sagemaker tests"
-        fi
+      ## run gpu sagemaker tests
+      #- |
+      #  if has-matching-changes "test/" "tests/" "src/*.py" "docker/*" "buildspec.yml"; then
+      #    pytest test/integration/sagemaker -n 8 --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --account-id $ACCOUNT --tag $GPU_TAG --py-version $GPU_PY_VERSION --instance-type $GPU_INSTANCE_TYPE
+      #  else
+      #    echo "skipping gpu sagemaker tests"
+      #  fi
 
     finally:
       # shut down remote gpu instance
-      - cleanup-gpu-instances
-      - cleanup-key-pairs
+      # - cleanup-gpu-instances
+      # - cleanup-key-pairs
 
       # remove ecr image
       - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$CPU_TAG
