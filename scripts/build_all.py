@@ -21,12 +21,15 @@ PY2_CPU_BINARY = 'https://s3-us-west-2.amazonaws.com/tensorflow-aws/1.13/AmazonL
 PY3_CPU_BINARY = 'https://s3-us-west-2.amazonaws.com/tensorflow-aws/1.13/AmazonLinux/cpu/latest-patch-latest-patch/tensorflow-1.13.1-cp36-cp36m-linux_x86_64.whl'
 PY2_GPU_BINARY = 'https://s3-us-west-2.amazonaws.com/tensorflow-aws/1.13/AmazonLinux/gpu/latest-patch-latest-patch/tensorflow-1.13.1-cp27-cp27mu-linux_x86_64.whl'
 PY3_GPU_BINARY = 'https://s3-us-west-2.amazonaws.com/tensorflow-aws/1.13/AmazonLinux/gpu/latest-patch-latest-patch/tensorflow-1.13.1-cp36-cp36m-linux_x86_64.whl'
-
+DEV_ACCOUNT = '142577830533'
+REGION = 'us-west-2'
 
 def _parse_args():
 
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--account', type=str, default=DEV_ACCOUNT)
+    parser.add_argument('--region', type=str, default=REGION)
     parser.add_argument('--version', type=str, default=VERSION)
     parser.add_argument('--py2-cpu-binary', type=str, default=PY2_CPU_BINARY)
     parser.add_argument('--py3-cpu-binary', type=str, default=PY3_CPU_BINARY)
@@ -46,7 +49,13 @@ binaries = {
 }
 build_dir = 'docker/{}'.format(args.version)
 
-for arch in ['gpu']:
+# Run docker-login so we can pull the cached image
+login_cmd = subprocess.check_output(
+    'aws ecr get-login --no-include-email --registry-id {}'.format(args.account).split())
+print(login_cmd)
+subprocess.check_call(login_cmd.split())
+
+for arch in ['cpu', 'gpu']:
     for py_version in ['2', '3']:
         binary_url = binaries['py{}-{}'.format(py_version, arch)]
         binary_file = os.path.basename(binary_url)
@@ -54,8 +63,10 @@ for arch in ['gpu']:
         print(cmd)
         subprocess.check_call(cmd.split())
         tag = '{}-{}-py{}'.format(args.version, arch, py_version)
-        build_cmd = 'docker build -f {}/Dockerfile.{} --build-arg py_version={} --build-arg framework_installable={} ' \
-                    '-t {}:{} {}'.format(build_dir, arch, py_version, binary_file, args.repo, tag, build_dir)
+        prev_image_uri = '{}.dkr.ecr.{}.amazonaws.com/{}:{}'.format(args.account, args.region, args.repo, tag)
+        build_cmd = 'docker build -f {}/Dockerfile.{} --cache-from {} ' \
+                    '--build-arg py_version={} --build-arg framework_installable={} ' \
+                    '-t {}:{} {}'.format(build_dir, arch, prev_image_uri, py_version, binary_file, args.repo, tag, build_dir)
         print(build_cmd)
         subprocess.check_call(build_cmd.split())
         print('Deleting binary file')

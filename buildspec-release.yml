@@ -30,14 +30,14 @@ phases:
       - cp dist/$tar_name $build_dir
 
       # Build all images
-      - python3 scripts/build_all.py
+      - python3 scripts/build_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
 
       # run local cpu integ tests
       - tag="$FRAMEWORK_VERSION-cpu-py3"
       - pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name sagemaker-tensorflow-scriptmode --tag $tag --py-version 3 --framework-version $FRAMEWORK_VERSION --processor cpu
 
       # Publish all images
-      - python3 scripts/publish_all.py --account $ACCOUNT
+      - python3 scripts/publish_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
 
       - |
         echo '[{
