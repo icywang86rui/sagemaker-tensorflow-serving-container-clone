@@ -4,6 +4,7 @@ env:
   variables:
     FRAMEWORK_VERSION: '1.13.1'
     GPU_INSTANCE_TYPE: 'ml.p2.xlarge'
+    GITHUB_REPO: 'sagemaker-tensorflow-container'
 
 phases:
   pre_build:
@@ -17,10 +18,10 @@ phases:
       #- git-release --prepare
 
       # run linter
-      - tox -e flake8
+      #- tox -e flake8
 
       # run unit tests
-      - tox -e py36,py27 test/unit
+      #- tox -e py36,py27 test/unit
 
       # Create pip archive
       #- build_dir="docker/$FRAMEWORK_VERSION"
@@ -32,8 +33,9 @@ phases:
       #- python3 scripts/build_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
 
       # run local cpu integ tests
-      #- $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
-      #- IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --docker-base-name sagemaker-tensorflow-scriptmode --framework-version $FRAMEWORK_VERSION --processor cpu
+      - $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
+      - base_name="$ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sagemaker-tensorflow-scriptmode"
+      - IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --docker-base-name $base_name --framework-version $FRAMEWORK_VERSION --processor cpu
       #- IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --docker-base-name sagemaker-tensorflow-scriptmode --py-version 2 --framework-version $FRAMEWORK_VERSION --processor cpu
 
       # launch remote gpu instance
@@ -42,11 +44,10 @@ phases:
       - create-key-pair
       - launch-ec2-instance --instance-type $instance_type --ami-name dlami-ubuntu
 
-      - base_name="$ACCOUNT.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sagemaker-tensorflow-scriptmode"
-      - py2_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --docker-base-name $base_name --py-version 2 --framework-version $FRAMEWORK_VERSION --processor gpu"
-      - remote-test --github-repo $GITHUB_REPO --test-cmd "$py2_cmd"
-      - py3_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --docker-base-name $base_name -tensorflow-scriptmode --framework-version $FRAMEWORK_VERSION --processor gpu"
-      - remote-test --github-repo $GITHUB_REPO --test-cmd "$py3_cmd"
+      - py2_cmd="IGNORE_COVERAGE=- tox -e py36 -- -s test/integration/local --docker-base-name $base_name --py-version 2 --framework-version $FRAMEWORK_VERSION --processor gpu"
+      - remote-test --github-repo $GITHUB_REPO --branch script-mode --test-cmd "$py2_cmd"
+      - py3_cmd="IGNORE_COVERAGE=- tox -e py36 -- -s test/integration/local --docker-base-name $base_name -tensorflow-scriptmode --framework-version $FRAMEWORK_VERSION --processor gpu"
+      - remote-test --github-repo $GITHUB_REPO --branch script-mode --test-cmd "$py3_cmd"
 
       # Publish all images
       #- python3 scripts/publish_all.py --account $ACCOUNT --region $AWS_DEFAULT_REGION
